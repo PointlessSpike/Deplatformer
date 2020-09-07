@@ -1,0 +1,199 @@
+<html>
+<style>
+    #modal {
+        position: absolute;
+        left: 50%;
+        margin-left: -100px;
+        top: 50%;
+        margin-top: -100px;
+        width: 200px;
+        border: 1px solid black;
+        padding: 10px;
+        background-color: white;
+    }
+
+    #modalOuter {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: lightgrey;
+        top: 0;
+        left: 0;
+    }
+
+    #closeButton {
+        display: block;
+    }
+
+    #platformEdge {
+        background-color: red;
+        height: 20px;
+        width: 200px;
+        display: inline-block;
+    }
+
+    #platform {
+        background-color: black;
+        height: 20px;
+        width: 800px;
+        display: inline-block;
+        color: white;
+    }
+
+    #character {
+        width: 50px;
+        display: block;
+    }
+
+    #commentLabel,
+    #responseLabel {
+        display: block;
+    }
+
+    #commentLabel {
+        color: red;
+    }
+
+    #pointsLabel {
+        position: absolute;
+        right: 20px;
+        top: 0;
+    }
+
+    button {
+        border: initial;
+        width: 50px;
+        height: 30px;
+    }
+
+    button:focus, button:active {
+        outline: none;
+    }
+</style>
+<label id="pointsLabel">Followers: 0</label>
+<div id="gameDiv">
+    <img id="character"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURQAAAAAAAKVnuc8AAAACdFJOU/8A5bcwSgAAAAlwSFlzAAAOwwAADsMBx2+oZAAAADBJREFUGFdjYGRkAAEgBUZQCisLrg6TQACEGAoBkQFiIA0xBSIAokEMsAoIg5GRAQAaxwBab90ZNAAAAABJRU5ErkJggg==">
+    <div id="platformEdge"></div>
+    <div id="platform"></div>
+</div>
+<button id="leftButton" onclick="onLeft();">Left</button>
+<button id="rightButton" onclick="onRight();">Right</button>
+<button id="aButton" onclick="onA();">A</button>
+<button id="bButton" onclick="onB();">B</button>
+<label id="commentLabel"></label>
+<label id="responseLabel"></label>
+<div id="modalOuter">
+    <div id="modal">
+        <label id="modalLabel"></label>
+        <button id="closeButton"
+            onclick="modalOuter.style.display = 'none'; if(!gameStarted) startGame();">Close</button>
+    </div>
+</div>
+
+</html>
+
+<script>
+    var comments = ["Stop being such an asshole!", "Ugh, trolls.", "Christ, you're awful!", "You just earned a block.", "You're making me lose all faith in humanity.", "I hate this hellsite.", "What the fuck."]
+    var responses = ["I'm just asking questions.", "I have reasonable concerns.", "I'm sorry your IQ is too low to understand.", "Here's an article from Breitbart.", "Oh, of course you're a man.", "Pronouns in bio", "Adult human female!", "Protestors deserve whatever they get!", "We can always tell."];
+    var edgyResponses = ["How much are (((they))) paying you?", "Womanhood is not a fetish, you pathetic, sick fuck.", "Hitler was right.", "Ugly whore!", "13/50", "Trans women are men!", "The holocaust never happened but I wish it had", "We must secure the existence of our people and a future for white children."];
+    modalLabel.innerText = "Try to stay on the platform. Press A or B when prompted to make fallacious counter-arguments!";
+    var x = 500;
+    moveCharacter(0);
+    var points = 0;
+
+    var gameStarted = false;
+    var currentButton = null;
+    var currentComment = 0;
+
+    function startGame() {
+
+        setInterval(function () {
+            if (x <= 200) addPoints(20);
+            else addPoints(10);
+
+            if (!currentComment) {
+                var randomResult = Math.floor(Math.random() * 5);
+                if (randomResult == 4) {
+                    comment(getRandomComment());
+                    currentComment = 1;
+                    var randomButtonResult = Math.floor(Math.random() * 2);
+                    if (randomButtonResult == 0) aButton.style.border = "1px solid red";
+                    else bButton.style.border = "1px solid red";
+                    currentButton = randomButtonResult;
+                }
+            }
+            else if (currentComment > 1) {
+                addPoints(-50);
+                moveCharacter(-200);
+                currentComment = 0;
+                randomButtonResult = null;
+                aButton.style.border = "initial";
+                bButton.style.border = "initial";
+            }
+            else {
+                currentComment++;
+            }
+
+        }, 1000)
+    }
+
+    function moveCharacter(change) {
+        x += change;
+        character.style.marginLeft = x + "px";
+        if (x < 0) {
+            modalLabel.innerText = "You got permabanned from Twitter! :( Reload to create a new account."
+            modalOuter.style.display = "initial";
+        }
+    }
+    function addPoints(change) {
+        points += change;
+        pointsLabel.innerText = "Followers: " + points;
+    }
+    function onLeft() {
+        moveCharacter(-10);
+    }
+    function onRight() {
+        moveCharacter(10);
+    }
+    function onA() {
+        if (currentButton == 0) {
+            sendResponse();
+            aButton.style.border = "initial";
+        }
+    }
+    function onB() {
+        if (currentButton == 1) {
+            sendResponse();
+            bButton.style.border = "initial";
+        }
+    }
+    function sendResponse() {
+        if (x >= 200) respond(getRandomResponse());
+        else respond(getRandomEdgyResponse());
+        addPoints(100);
+        currentComment = 0;
+    }
+
+    function getRandomComment() {
+        return comments[Math.floor(Math.random() * comments.length)];
+    }
+    function getRandomResponse() {
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+    function getRandomEdgyResponse() {
+        return edgyResponses[Math.floor(Math.random() * edgyResponses.length)];
+    }
+    function comment(comment) {
+        commentLabel.innerText = comment;
+        setTimeout(function () {
+            commentLabel.innerText = "";
+        }, 2000)
+    }
+    function respond(comment) {
+        responseLabel.innerText = comment;
+        setTimeout(function () {
+            responseLabel.innerText = "";
+        }, 2000)
+    }
+</script>
